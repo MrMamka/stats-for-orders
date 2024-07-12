@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  stats-service:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    environment:
+      - DB_HOST=clickhouse
+      - DB_PORT=9000
+      - DB_USER=default
+      - DB_PASSWORD=
+
+  clickhouse:
+    image: yandex/clickhouse-server:21.3
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      # - ./users.xml:/etc/clickhouse-server/users.xml
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "--query", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # migrate:
+  #   image: migrate/migrate
+  #   command: ["-path", "/migrations", "-database", "clickhouse://clickhouse:8123", "up"]
+  #   volumes:
+  #     - ./migrations:/migrations
+  #   depends_on:
+  #     clickhouse:
+  #       condition: service_healthy
+
+volumes:
+  clickhouse_data:
