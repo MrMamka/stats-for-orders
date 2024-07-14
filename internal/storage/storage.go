@@ -32,7 +32,7 @@ type OrderBook struct {
 }
 
 type HistoryOrder struct {
-	Client              Client    `json:"client"`
+	Client              *Client   `json:"client"`
 	Side                string    `json:"side"`
 	Type                string    `json:"type"`
 	BaseQty             float64   `json:"base_qty"`
@@ -181,6 +181,85 @@ func (db *DataBase) SaveOrderBook(orderBook *OrderBook) error {
 		orderBook.Pair,
 		askArrays,
 		bidArrays,
+	); err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (db *DataBase) GetOrderHistory(client *Client) ([]*HistoryOrder, error) {
+	query := `SELECT side, type, base_qty, price, algorithm_name_placed, lowest_sell_prc,
+	highest_buy_prc, commission_quote_qty, time_placed 
+	FROM Order_History WHERE client_name = ? AND exchange_name = ? AND label = ? AND pair = ?`
+
+	rows, err := db.db.Query(query, client.ClientName, client.ExchangeName, client.Label, client.Pair)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var historyOrders []*HistoryOrder
+	for rows.Next() {
+		var historyOrder HistoryOrder
+		if err := rows.Scan(
+			&historyOrder.Side,
+			&historyOrder.Type,
+			&historyOrder.BaseQty,
+			&historyOrder.Price,
+			&historyOrder.AlgorithmNamePlaced,
+			&historyOrder.LowestSellPrc,
+			&historyOrder.HighestBuyPrc,
+			&historyOrder.CommissionQuoteQty,
+			&historyOrder.TimePlaced,
+		); err != nil {
+			return nil, err
+		}
+		historyOrder.Client = client
+		historyOrders = append(historyOrders, &historyOrder)
+	}
+
+	return historyOrders, nil
+}
+
+func (db *DataBase) SaveOrder(order *HistoryOrder) error {
+	tx, err := db.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	stmt, err := tx.Prepare(`INSERT INTO Order_History 
+	(client_name, exchange_name, label, pair, side, type, base_qty, price,
+	algorithm_name_placed, lowest_sell_prc, highest_buy_prc, commission_quote_qty, time_placed)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	if order.Client == nil {
+		order.Client = &Client{}
+	}
+
+	if _, err := stmt.Exec(
+		order.Client.ClientName,
+		order.Client.ExchangeName,
+		order.Client.Label,
+		order.Client.Pair,
+		order.Side,
+		order.Type,
+		order.BaseQty,
+		order.Price,
+		order.AlgorithmNamePlaced,
+		order.LowestSellPrc,
+		order.HighestBuyPrc,
+		order.CommissionQuoteQty,
+		order.TimePlaced,
 	); err != nil {
 		return err
 	}

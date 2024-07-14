@@ -4,4 +4,5 @@ CREATE TABLE IF NOT EXISTS OrderBook (
     pair String,
     asks Array(Array(Float64)),
     bids Array(Array(Float64))
-) ENGINE = MergeTree() ORDER BY id;
+) ENGINE = MergeTree() 
+ORDER BY (exchange, pair);

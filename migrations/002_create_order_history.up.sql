@@ -12,4 +12,5 @@ CREATE TABLE IF NOT EXISTS Order_History (
     highest_buy_prc Float64,
     commission_quote_qty Float64,
     time_placed DateTime
-) ENGINE = MergeTree() ORDER BY time_placed;
+) ENGINE = MergeTree() 
+ORDER BY (client_name, exchange_name, label, pair);

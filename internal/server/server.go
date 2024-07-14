@@ -64,14 +64,32 @@ func (s *Server) saveOrderBook(c *gin.Context) {
 }
 
 func (s *Server) getOrderHistory(c *gin.Context) {
+	var client storage.Client
+	if err := c.BindJSON(&client); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
+	historyOrders, err := s.db.GetOrderHistory(&client)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, historyOrders)
 }
 
 func (s *Server) saveOrder(c *gin.Context) {
+	var order storage.HistoryOrder
+	if err := c.BindJSON(&order); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
+	if err := s.db.SaveOrder(&order); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"message": "Order saved successfully"})
 }
-
-// func GetOrderBook(exchange_name, pair string) ([]*OrderBook, error)
-// func SaveOrderBook(exchange_name, pair string, orderBook []*OrderBook) error
-// func GetOrderHistory(client *Client) ([]*HistoryOrder, error)
-// func SaveOrder(client *Client, order *HistoryOrder) error
