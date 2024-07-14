@@ -1,0 +1,4 @@
+curl -v -X POST 'localhost:8080/order-book' \
+--data '{"id": 3, "exchange": "ex3", "pair": "pair3"}' 
+
+curl -v GET 'localhost:8080/order-book?exchange_name=ex3&pair=pair3'

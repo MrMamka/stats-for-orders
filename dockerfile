@@ -9,4 +9,4 @@ COPY . .
 
 RUN go build -o stats-service cmd/main.go
 
-CMD ["./stats-service"]
+CMD ["./stats-service", "-port", "8080"]

@@ -13,6 +13,7 @@ services:
       - DB_PORT=9000
       - DB_USER=default
       - DB_PASSWORD=
+      - MIGRATIONS_PATH=./migrations
 
   clickhouse:
     image: yandex/clickhouse-server:21.3
@@ -24,8 +25,8 @@ services:
       # - ./users.xml:/etc/clickhouse-server/users.xml
     healthcheck:
       test: ["CMD", "clickhouse-client", "--query", "SELECT 1"]
-      interval: 10s
-      timeout: 5s
+      interval: 5s
+      timeout: 3s
       retries: 5
 
   # migrate:
