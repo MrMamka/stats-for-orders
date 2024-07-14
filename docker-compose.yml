@@ -20,21 +20,11 @@ services:
       - "9000:9000"
     volumes:
       - clickhouse_data:/var/lib/clickhouse
-      # - ./users.xml:/etc/clickhouse-server/users.xml
     healthcheck:
       test: ["CMD", "clickhouse-client", "--query", "SELECT 1"]
       interval: 5s
       timeout: 3s
       retries: 5
-
-  # migrate:
-  #   image: migrate/migrate
-  #   command: ["-path", "/migrations", "-database", "clickhouse://clickhouse:8123", "up"]
-  #   volumes:
-  #     - ./migrations:/migrations
-  #   depends_on:
-  #     clickhouse:
-  #       condition: service_healthy
 
 volumes:
   clickhouse_data:
