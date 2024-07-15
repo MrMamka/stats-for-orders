@@ -1,6 +1,9 @@
 package server
 
 import (
+	"bytes"
+	"fmt"
+	"io"
 	"net/http"
 	"stats-for-orders/internal/storage"
 
@@ -12,9 +15,10 @@ type Server struct {
 	mux *gin.Engine
 }
 
-// Create router and register handlers
+// Create router with middleware and register handlers
 func NewServer(db *storage.DataBase) *Server {
 	mux := gin.Default()
+	mux.Use(logMiddleware)
 
 	return &Server{
 		db:  db,
@@ -26,6 +30,20 @@ func NewServer(db *storage.DataBase) *Server {
 func (s *Server) RegisterAndRun(addr string) {
 	s.registerHandlers()
 	s.mux.Run(addr)
+}
+
+func logMiddleware(c *gin.Context) {
+	method := c.Request.Method
+	path := c.Request.URL.Path
+	bodyBytes, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.AbortWithError(500, err)
+		return
+	}
+	c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+	fmt.Printf("Got request. Method: %s; Path: %s; Body: %s\n", method, path, string(bodyBytes))
+
+	c.Next()
 }
 
 func (s *Server) registerHandlers() {
@@ -64,13 +82,14 @@ func (s *Server) saveOrderBook(c *gin.Context) {
 }
 
 func (s *Server) getOrderHistory(c *gin.Context) {
-	var client storage.Client
-	if err := c.BindJSON(&client); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	client := &storage.Client{
+		ClientName:   c.Query("client_name"),
+		ExchangeName: c.Query("exchange_name"),
+		Label:        c.Query("label"),
+		Pair:         c.Query("pair"),
 	}
 
-	historyOrders, err := s.db.GetOrderHistory(&client)
+	historyOrders, err := s.db.GetOrderHistory(client)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

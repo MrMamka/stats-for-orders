@@ -5,7 +5,13 @@ go 1.22.3
 require (
 	github.com/ClickHouse/clickhouse-go v1.5.4
 	github.com/gin-gonic/gin v1.10.0
+	github.com/go-resty/resty/v2 v2.13.1
 	github.com/stretchr/testify v1.9.0
+)
+
+require (
+	github.com/kr/pretty v0.1.0 // indirect
+	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 )
 
 require (
@@ -21,6 +27,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.20.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
+	github.com/golang-module/carbon/v2 v2.3.12
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect

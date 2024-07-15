@@ -1,10 +1,13 @@
+Save order book:
 curl -v -X POST 'localhost:8080/order-book' \
 --data '{"id": 3, "exchange": "ex3", "pair": "pair3"}'
 
+Get order book:
 curl -v GET 'localhost:8080/order-book?exchange=ex3&pair=pair3'
 
+Save oder:
 curl -v -X POST 'localhost:8080/order' \
 --data '{"client": {"client_name": "client1"}, "side": "side1", "price": 1}'
 
-curl -v -X GET 'localhost:8080/order-history' \
---data '{"client_name": "client1"}'
+Get order history:
+curl -v -X GET 'localhost:8080/order-history?client_name=client3&exchange_name=ex3&label=label3&pair=pair3'
