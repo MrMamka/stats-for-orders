@@ -32,6 +32,7 @@ func (s *Server) RegisterAndRun(addr string) {
 	s.mux.Run(addr)
 }
 
+// Middleware for logging requests bodies (other info logging by gin)
 func logMiddleware(c *gin.Context) {
 	method := c.Request.Method
 	path := c.Request.URL.Path

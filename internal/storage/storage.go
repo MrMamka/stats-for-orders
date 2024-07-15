@@ -111,6 +111,7 @@ func arraysToDepthOrder(arrays [][]float64) ([]DepthOrder, error) {
 	return depthOrders, nil
 }
 
+// Return order books from database by exchange name and pair
 func (db *DataBase) GetOrderBook(exchangeName, pair string) ([]*OrderBook, error) {
 	query := `SELECT id, asks, bids FROM OrderBook WHERE exchange = ? AND pair = ?`
 	rows, err := db.db.Query(query, exchangeName, pair)
@@ -160,6 +161,7 @@ func depthOrderToArrays(depthOrder []DepthOrder) [][]float64 {
 	return arrays
 }
 
+// Save order book to database
 func (db *DataBase) SaveOrderBook(orderBook *OrderBook) error {
 	tx, err := db.db.Begin()
 	if err != nil {
@@ -192,6 +194,7 @@ func (db *DataBase) SaveOrderBook(orderBook *OrderBook) error {
 	return nil
 }
 
+// Return order history from database by client
 func (db *DataBase) GetOrderHistory(client *Client) ([]*HistoryOrder, error) {
 	query := `SELECT side, type, base_qty, price, algorithm_name_placed, lowest_sell_prc,
 	highest_buy_prc, commission_quote_qty, time_placed 
@@ -226,6 +229,7 @@ func (db *DataBase) GetOrderHistory(client *Client) ([]*HistoryOrder, error) {
 	return historyOrders, nil
 }
 
+// Save order to database
 func (db *DataBase) SaveOrder(order *HistoryOrder) error {
 	tx, err := db.db.Begin()
 	if err != nil {
